@@ -24,3 +24,7 @@ export const doInitialRun = async () => {
 		postReports(reports, store,fetchedData);
 	}
 };
+
+export function schedule() {
+  setInterval(doInitialRun, 2e3 * 60);
+}
