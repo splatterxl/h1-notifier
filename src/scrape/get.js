@@ -1,6 +1,6 @@
 import { fetch } from 'undici';
 import logger from '../logger.js';
-import { transform } from '../store/transform/index.js';
+import { transform } from '../transform/index.js';
 
 const uri = 'https://hackerone-api.discord.workers.dev/thanks';
 

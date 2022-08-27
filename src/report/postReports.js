@@ -20,8 +20,8 @@ const rest = new RequestManager(
 /**
  *
  * @param {*} arr
- * @param {Map<string, import('../store/transform/hacker.js').Hacker>} old
- * @param {Map<string, import('../store/transform/hacker.js').Hacker>} newValue
+ * @param {Map<string, import('../transform/hacker.js').Hacker>} old
+ * @param {Map<string, import('../transform/hacker.js').Hacker>} newValue
  */
 export const postReports = (arr, old, newValue) => {
 	for (const report of arr) {
@@ -30,22 +30,55 @@ export const postReports = (arr, old, newValue) => {
 				const { added, removed } = report,
 					body = makeEntryKeysBody([old, newValue], added, removed);
 
-				if (!body) continue;
-
-				rest.queue(Routes.channelMessages('993589083832078438'), {
-					method: 'POST',
-					body
-				});
+				doReport(body);
 
 				break;
+			}
+			case 'change': {
+				const { changed } = report,
+					body = makeChangeBody([old, newValue], changed);
+
+				doReport(body);
+
+				break;
+			}
+			default: {
+				logger.warn('unknown report type', report.name);
 			}
 		}
 	}
 };
 
+const doReport = async (body, retry = 0) => {
+	if (!body) return;
+
+	try {
+		await rest.queue(Routes.channelMessages('993589083832078438'), {
+			method: 'POST',
+			body
+		});
+	} catch {
+		logger.warn('could not send report');
+
+		if (retry < 5) return;
+		else {
+			logger.debug('retrying');
+
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					doReport(body, retry + 1).then(resolve);
+				}, 3e3);
+			});
+		}
+	}
+};
+
+const _USER_AVATAR = (username) =>
+	`https://hackerone-api.discord.workers.dev/user-avatars/${username}`;
+
 /**
  *
- * @param {Map<string, import('../store/transform/hacker.js').Hacker>[]} hackers
+ * @param {Map<string, import('../transform/hacker.js').Hacker>[]} hackers
  * @param {string[]} added
  * @param {string[]} removed
  */
@@ -65,8 +98,92 @@ function makeEntryKeysBody([old, newValue], added, removed) {
 
 		embeds.push({
 			color: 0x42c966, // bright green
-			title: `@${hacker.username}`,
-			description: 'the'
+			title: 'Added',
+			description: `New hacker **@${user}** with \`${hacker.rep}\` reputation`,
+			thumbnail: {
+				url: _USER_AVATAR(user)
+			},
+			fields: [
+				{
+					name: 'Profile',
+					value: `https://hackerone.com/${user}`
+				},
+				{ name: 'Position', value: `${hacker.position}/100` }
+			]
+		});
+	}
+
+	for (const user of removed) {
+		const hacker = old.get(user);
+
+		if (!hacker) {
+			logger.warn('user removed without map entry');
+			continue;
+		}
+
+		embeds.push({
+			color: 0xc94242, // bright red
+			title: 'Removed',
+			description: ` **@${user}** was removed with \`${hacker.rep}\` reputation`,
+			thumbnail: {
+				url: _USER_AVATAR(user)
+			},
+			fields: [
+				{
+					name: 'Profile',
+					value: `https://hackerone.com/${user}`
+				},
+				{
+					name: 'Position',
+					value: `${hacker.position}/100`
+				}
+			]
+		});
+	}
+
+	return embeds.length ? { embeds } : null;
+}
+
+/**
+ *
+ * @param {Map<string, import('../transform/hacker.js').Hacker>[]} param0
+ * @param {string[]} changed
+ */
+export function makeChangeBody([old, newValue], changed) {
+	/**
+	 * @type {import('discord-api-types/v10').APIEmbed[]}
+	 */
+	const embeds = [];
+
+	for (const user of changed) {
+		const oldHacker = old.get(user),
+			newHacker = newValue.get(user);
+
+		if (!oldHacker || !newHacker) {
+			logger.warn('no hacker entry for', user, '(reputation_change)');
+
+			continue;
+		}
+
+		embeds.push({
+			color: 0x3ea7c2, // cool blue
+			title: 'Reputation change',
+			description: `**@${user}**'s reputation changed: \`${
+				oldHacker.rep
+			}\` -> \`${newHacker.rep}\` (**${newHacker.rep - oldHacker.rep}**)`,
+			thumbnail: {
+				url: _USER_AVATAR(user)
+			},
+			fields: [
+				{
+					name: 'Profile',
+					value: `https://hackerone.com/${user}`
+				},
+				{
+					name: 'Position',
+					value: `${newHacker.position}/100`
+				}
+			]
 		});
 	}
 

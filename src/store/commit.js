@@ -4,7 +4,7 @@ import { _STORE_FILE_PATH } from './load.js';
 
 /**
  *
- * @param {Map<string, import('./transform/hacker.js').Hacker>} data
+ * @param {Map<string, import('../transform/hacker.js').Hacker>} data
  */
 export const commit = (data) => {
 	const arr = Array.from(data.values()),

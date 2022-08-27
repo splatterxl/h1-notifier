@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import logger from '../logger.js';
-import { transformMap } from './transform/index.js';
+import { transformMap } from '../transform/index.js';
 
 export const _STORE_FILE_PATH = join(process.cwd(), '__hackers.json');
 
@@ -24,7 +24,7 @@ const _loadSync = () => {
 
 /**
  *
- * @returns {Map<string, import('./transform/hacker.js').Hacker>|null}
+ * @returns {Map<string, import('../transform/hacker.js').Hacker>|null}
  */
 export const load = () => {
 	const value = _loadSync();
