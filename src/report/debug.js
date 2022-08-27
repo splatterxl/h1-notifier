@@ -14,7 +14,7 @@ export const debugReports = (arr) => {
 
 				break;
 			}
-			case 'changed': {
+			case 'change': {
 				logger.debug('reputation_change ::', report.changed.length, 'changed');
 			}
 			default: {
