@@ -25,6 +25,7 @@ const rest = new RequestManager(
  */
 export const postReports = (arr, old, newValue) => {
 	for (const report of arr) {
+console.log(report)
 		switch (report.name) {
 			case 'entry_keys': {
 				const { added, removed } = report,
