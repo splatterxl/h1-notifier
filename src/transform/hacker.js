@@ -40,7 +40,7 @@ export const transformHacker = (hacker, ind) => {
 	 */
 	// @ts-ignore
 	const obj = {
-		position: ind
+		position: ind + 1
 	};
 
 	for (const [from, to, defaultValue, transform] of _PROP_MAPPING) {

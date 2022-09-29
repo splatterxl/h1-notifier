@@ -1,7 +1,7 @@
 import logger from './logger.js';
-import { doInitialRun, schedule } from './run/initial.js';
+import { run, schedule } from './run.js';
 
 logger.info('running initial scrape');
 
-doInitialRun();
+run();
 schedule();

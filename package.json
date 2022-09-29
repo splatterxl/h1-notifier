@@ -1,18 +1,18 @@
 {
-  "name": "h1-scrape",
-  "version": "1.0.0",
-  "main": "src/index.js",
-  "type": "module",
-  "repository": "git@github.com:splatterxl/h1-scrape.git",
-  "author": "Splatterxl <splatterxl@outlook.ie>",
-  "license": "MIT",
-  "dependencies": {
-    "@fuwa/rest": "^0.2.2",
-    "discord-api-types": "^0.37.5",
-    "undici": "^5.10.0"
-  },
-  "devDependencies": {
-    "@types/node": "^18.7.13",
-    "nodemon": "^2.0.19"
-  }
+	"name": "h1-scrape",
+	"version": "1.0.0",
+	"main": "src/index.js",
+	"type": "module",
+	"repository": "git@github.com:splatterxl/h1-scrape.git",
+	"author": "Splatterxl <splatterxl@outlook.ie>",
+	"license": "MIT",
+	"dependencies": {
+		"@fuwa/rest": "^0.2.2",
+		"discord-api-types": "^0.37.5",
+		"undici": "^5.10.0"
+	},
+	"devDependencies": {
+		"@types/node": "^18.7.13",
+		"nodemon": "^2.0.19"
+	}
 }
