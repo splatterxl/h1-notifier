@@ -15,6 +15,8 @@ export const transform = (arr) => {
 
 		if (value === null) continue;
 
+		if (value?.rep < 1) continue;
+
 		if (map.has(value.username)) {
 			logger.warn('duplicate hacker', value.username);
 		}

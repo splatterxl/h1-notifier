@@ -16,6 +16,8 @@ export const debugReports = (arr) => {
 			}
 			case 'change': {
 				logger.debug('reputation_change ::', report.changed.length, 'changed');
+
+				break;
 			}
 			default: {
 				logger.warn('unknown report type', report.name);

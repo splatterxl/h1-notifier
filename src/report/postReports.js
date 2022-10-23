@@ -1,6 +1,7 @@
 import { RequestManager, RESTClient } from '@fuwa/rest';
 import { RouteBases, Routes } from 'discord-api-types/v10';
 import logger from '../logger.js';
+import { getDifferenceLabel } from '../util/getDifferenceLabel.js';
 
 const rest = new RequestManager(
 	new RESTClient({
@@ -24,13 +25,15 @@ const rest = new RequestManager(
  * @param {Map<string, import('../transform/hacker.js').Hacker>} newValue
  */
 export const postReports = (arr, old, newValue) => {
+	let embeds = [];
+
 	for (const report of arr) {
 		switch (report.name) {
 			case 'entry_keys': {
 				const { added, removed } = report,
 					body = makeEntryKeysBody([old, newValue], added, removed);
 
-				doReport(body);
+				if (body) embeds = embeds.concat(body);
 
 				break;
 			}
@@ -38,7 +41,7 @@ export const postReports = (arr, old, newValue) => {
 				const { changed } = report,
 					body = makeChangeBody([old, newValue], changed);
 
-				doReport(body);
+				if (body) embeds = embeds.concat(body);
 
 				break;
 			}
@@ -47,17 +50,21 @@ export const postReports = (arr, old, newValue) => {
 			}
 		}
 	}
+
+	return doReport({ embeds });
 };
 
-const doReport = async (body, retry = 0) => {
-	if (!body) return;
+const doReport = async (body, retry = 5) => {
+	if (!body?.embeds?.length) return;
 
 	try {
-		await rest.queue(Routes.channelMessages('993589083832078438'), {
+		await rest.queue(Routes.channelMessages('1029315212521771020'), {
 			method: 'POST',
 			body
 		});
-	} catch {
+	} catch (e) {
+		console.error(e);
+
 		logger.warn('could not send report');
 
 		if (retry < 5) return;
@@ -99,7 +106,9 @@ function makeEntryKeysBody([old, newValue], added, removed) {
 		embeds.push({
 			color: 0x42c966, // bright green
 			title: 'Added',
-			description: `New hacker **@${user}** with \`${hacker.rep}\` reputation`,
+			description: `New hacker **@${user}** with \`${
+				hacker.rep
+			}\` reputation (${getDifferenceLabel(hacker.rep)})`,
 			thumbnail: {
 				url: _USER_AVATAR(user)
 			},
@@ -108,7 +117,7 @@ function makeEntryKeysBody([old, newValue], added, removed) {
 					name: 'Profile',
 					value: `https://hackerone.com/${user}`
 				},
-				{ name: 'Position', value: `${hacker.position}/100` }
+				{ name: 'Position', value: `${hacker.position}/200` }
 			]
 		});
 	}
@@ -135,13 +144,13 @@ function makeEntryKeysBody([old, newValue], added, removed) {
 				},
 				{
 					name: 'Position',
-					value: `${hacker.position}/100`
+					value: `${hacker.position}/200`
 				}
 			]
 		});
 	}
 
-	return embeds.length ? { embeds } : null;
+	return embeds.length ? embeds : null;
 }
 
 /**
@@ -165,12 +174,16 @@ export function makeChangeBody([old, newValue], changed) {
 			continue;
 		}
 
+		const difference = newHacker.rep - oldHacker.rep;
+
 		embeds.push({
-			color: 0x3ea7c2, // cool blue
+			color: difference < 0 ? 0xc94242 : 0x3ea7c2, // cool blue
 			title: 'Reputation change',
 			description: `**@${user}**'s reputation changed: \`${
 				oldHacker.rep
-			}\` -> \`${newHacker.rep}\` (**${newHacker.rep - oldHacker.rep}**)`,
+			}\` -> \`${newHacker.rep}\` (**${difference}**: ${getDifferenceLabel(
+				difference
+			)})`,
 			thumbnail: {
 				url: _USER_AVATAR(user)
 			},
@@ -181,11 +194,11 @@ export function makeChangeBody([old, newValue], changed) {
 				},
 				{
 					name: 'Position',
-					value: `${newHacker.position}/100`
+					value: `${newHacker.position}/200`
 				}
 			]
 		});
 	}
 
-	return embeds.length ? { embeds } : null;
+	return embeds.length ? embeds : null;
 }
