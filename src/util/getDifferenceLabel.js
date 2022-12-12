@@ -13,7 +13,7 @@ export const getDifferenceLabel = (diff) => {
 		case 50:
 			return '⚠️ High/Critical Severity Bounty';
 		case -5:
-			return 'Out of Scope';
+			return 'N/A';
 		case -7:
 			return 'Informative/Duplicate';
 		default:
