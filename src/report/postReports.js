@@ -60,7 +60,7 @@ const doReport = async (body, retry = 5) => {
 	try {
 		await rest.queue(Routes.channelMessages('1029315212521771020'), {
 			method: 'POST',
-			body
+			body: { embeds: body.embeds.slice(0, 10) }
 		});
 	} catch (e) {
 		console.error(e);

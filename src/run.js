@@ -25,5 +25,5 @@ export const run = async () => {
 };
 
 export function schedule() {
-	setInterval(run, 2e3 * 60);
+	setInterval(run, 1e3 * 60);
 }
