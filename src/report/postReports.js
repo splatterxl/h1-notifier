@@ -28,6 +28,7 @@ export const postReports = (arr, old, newValue) => {
 	let embeds = [];
 
 	for (const report of arr) {
+console.log(report)
 		switch (report.name) {
 			case 'entry_keys': {
 				const { added, removed } = report,
