@@ -6,7 +6,7 @@ import { getDifferenceLabel } from '../util/getDifferenceLabel.js';
 const rest = new RequestManager(
 	new RESTClient({
 		baseURL: RouteBases.api,
-		auth: 'Bot MTAwMjkyNzQ2MTQyMTU1NTcyMw.GZKHbJ.Wn0T05yRJmG7ykP8ihmLHSe41vuddGnPI822YA'
+		auth: process.env.DISCORD_TOKEN
 	}),
 	{
 		timings: true,
@@ -58,7 +58,7 @@ const doReport = async (body, retry = 5) => {
 	if (!body?.embeds?.length) return;
 
 	try {
-		await rest.queue(Routes.channelMessages('1029315212521771020'), {
+		await rest.queue(Routes.channelMessages(process.env.DISCORD_CHANNEL), {
 			method: 'POST',
 			body: { embeds: body.embeds.slice(0, 10) }
 		});
